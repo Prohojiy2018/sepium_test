@@ -11,16 +11,29 @@
         return cats;
     }
 
-    // Фрагмент упрощён из legacy main.js. Сейчас он неверно собирает часть типов полей.
+    // Сбор характеристик со всеми правильными типами и проверками
     function collectPropertyValues() {
         var propertyMas = {};
 
         $('.name_select_rielt').each(function () {
-            var propertyId = $(this).attr('data-property');
-            var value = $(this).find('input.ag_pole_good, select.ag_pole_good').first().val();
+            var propertyId = $(this).attr('data-property-id');
+            var $checkboxes = $(this).find('input[type="checkbox"]:checked');
 
-            if (value !== undefined && value !== '') {
-                propertyMas[propertyId] = value;
+            // Если это множественный выбор
+            if ($checkboxes.length > 0) {
+                var checkedVals = [];
+                $checkboxes.each(function () {
+                    checkedVals.push($(this).siblings('.ckeck_param').attr('data-val'));
+                });
+                propertyMas[propertyId] = checkedVals.join(':::');
+            } else {
+                // Текст, число, одиночный селект
+                var value = $(this).find('input[type="text"], input[inputmode="decimal"], select').first().val();
+
+                // Пропускаем пустые поля, но оставляем "0"
+                if (value !== undefined && value !== null && value !== '') {
+                    propertyMas[propertyId] = value;
+                }
             }
         });
 
